@@ -1,5 +1,6 @@
 ﻿using smARTsoftware.SomfyRtsLib;
 using System;
+using System.IO.Ports;
 using System.Threading;
 
 namespace smARTsoftware.SomfyRts
@@ -10,9 +11,34 @@ namespace smARTsoftware.SomfyRts
 
     static void Main(string[] args)
     {
-      string dev = "/dev/serial/by-id/usb-Unknown_radino_CC1101-if00";
-      if (args.Length >0 && args[0].StartsWith("/"))
-        dev = args[0];
+
+
+      string[] ports = SerialPort.GetPortNames();
+
+      Console.WriteLine("Please enter number of COM Port to connect");
+      Console.WriteLine("The following serial ports were found:");
+
+      int i = 0;
+      // Display each port name to the console.
+      foreach (string port in ports)
+      {
+          Console.WriteLine(++i + ": " + port);
+      }
+
+      var comPortNumber = Console.ReadKey();
+      if(!int.TryParse(comPortNumber.KeyChar.ToString(), out int n) || n > ports.Length)
+      {
+          Console.WriteLine("Invalid Selection!");
+          return;
+      }
+
+      string dev = ports[--n];
+
+      if (args.Length > 0 && args[0].StartsWith("/"))
+      {
+          dev = args[0];
+      }
+
       SomfyRtsController controller = SomfyRtsController.CreateFromFile();
       controller.SignalDuinoAddress = dev;
       do
